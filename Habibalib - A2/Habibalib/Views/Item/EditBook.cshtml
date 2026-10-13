@@ -1,0 +1,29 @@
+@model Habibalib.Models.Book
+
+<h2>Edit Book ✏️</h2>
+
+<div class="form-box">
+    <form method="post" action="/Item/EditBook">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <label>Name</label>
+        <input type="text" name="Name" value="@Model.Name" required />
+        <label>Description</label>
+        <input type="text" name="Description" value="@Model.Description" />
+        <label>Library Code</label>
+        <input type="text" name="LibraryCode" value="@Model.LibraryCode" required />
+        <label>Status</label>
+        <select name="Status">
+            <option value="available" selected="@(Model.Status == "available" ? "selected" : null)">available</option>
+            <option value="borrowed" selected="@(Model.Status == "borrowed" ? "selected" : null)">borrowed</option>
+            <option value="damaged" selected="@(Model.Status == "damaged" ? "selected" : null)">damaged</option>
+            <option value="destroy" selected="@(Model.Status == "destroy" ? "selected" : null)">destroy</option>
+        </select>
+        <label>Author</label>
+        <input type="text" name="Author" value="@Model.Author" />
+        <label>Genre</label>
+        <input type="text" name="Genre" value="@Model.Genre" />
+        <label>ISBN</label>
+        <input type="text" name="Isbn" value="@Model.Isbn" />
+        <button type="submit" class="btn-pink">Update Book</button>
+    </form>
+</div>

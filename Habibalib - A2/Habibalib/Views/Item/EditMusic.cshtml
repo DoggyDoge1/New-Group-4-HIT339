@@ -1,0 +1,29 @@
+@model Habibalib.Models.Music
+
+<h2>Edit Music ✏️</h2>
+
+<div class="form-box">
+    <form method="post" action="/Item/EditMusic">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <label>Name</label>
+        <input type="text" name="Name" value="@Model.Name" required />
+        <label>Description</label>
+        <input type="text" name="Description" value="@Model.Description" />
+        <label>Library Code</label>
+        <input type="text" name="LibraryCode" value="@Model.LibraryCode" required />
+        <label>Status</label>
+        <select name="Status">
+            <option value="available" selected="@(Model.Status == "available" ? "selected" : null)">available</option>
+            <option value="borrowed" selected="@(Model.Status == "borrowed" ? "selected" : null)">borrowed</option>
+            <option value="damaged" selected="@(Model.Status == "damaged" ? "selected" : null)">damaged</option>
+            <option value="destroy" selected="@(Model.Status == "destroy" ? "selected" : null)">destroy</option>
+        </select>
+        <label>Artist</label>
+        <input type="text" name="Artist" value="@Model.Artist" />
+        <label>Year</label>
+        <input type="number" name="Year" value="@Model.Year" />
+        <label>Genre</label>
+        <input type="text" name="Genre" value="@Model.Genre" />
+        <button type="submit" class="btn-pink">Update Music</button>
+    </form>
+</div>

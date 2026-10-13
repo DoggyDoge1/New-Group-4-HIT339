@@ -1,0 +1,25 @@
+@model List<Habibalib.Models.Borrower>
+
+<h2>Borrowers 👧</h2>
+
+<a href="/Borrower/Create" class="btn-pink">+ Add Borrower</a>
+
+<table>
+    <tr><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th></th></tr>
+    @foreach (var b in Model)
+    {
+        <tr>
+            <td>@b.Name</td>
+            <td>@b.Email</td>
+            <td>@b.Phone</td>
+            <td>@b.Address</td>
+            <td>
+                <a href="/Borrower/Edit?id=@b.Id" class="btn-pink">Edit</a>
+                <form method="post" action="/Borrower/Delete" style="display:inline" onsubmit="return confirm('are you sure?')">
+                    <input type="hidden" name="id" value="@b.Id" />
+                    <button type="submit" class="btn-pink">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>

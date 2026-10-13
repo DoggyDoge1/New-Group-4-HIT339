@@ -1,0 +1,20 @@
+<h2>Borrow an Item 📦</h2>
+
+<div class="form-box">
+    @if (ViewBag.Error != null)
+    {
+        <p class="error-text">@ViewBag.Error</p>
+    }
+    <form method="post" action="/Borrow/BorrowItem">
+        <label>Library Code</label>
+        <input type="text" name="libraryCode" required />
+        <label>Borrower</label>
+        <select name="borrowerId" required>
+            @foreach (var b in ViewBag.Borrowers)
+            {
+                <option value="@b.Id">@b.Name (@b.Email)</option>
+            }
+        </select>
+        <button type="submit" class="btn-pink">Borrow</button>
+    </form>
+</div>

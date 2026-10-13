@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habibalib</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header class="top-bar">
+        <div class="logo">📚 Habibalib 🎀</div>
+        <nav>
+            <a href="/">Home</a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    <a href="/Item">Manage Items</a>
+                }
+                if (User.IsInRole("Reception"))
+                {
+                    <a href="/Borrower">Borrowers</a>
+                    <a href="/Borrow/BorrowItem">Borrow</a>
+                    <a href="/Borrow/ReturnItem">Return</a>
+                }
+                if (User.IsInRole("Manager"))
+                {
+                    <a href="/Manager">Stats</a>
+                }
+                <a href="/Account/Logout">Logout (@User.Identity.Name)</a>
+            }
+            else
+            {
+                <a href="/Account/Login">Staff Login</a>
+            }
+        </nav>
+    </header>
+
+    <main class="page-box">
+        @RenderBody()
+    </main>
+
+    <footer class="footer-box">
+        Built by Habiba 💕
+    </footer>
+</body>
+</html>

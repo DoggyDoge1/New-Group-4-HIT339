@@ -1,0 +1,26 @@
+@model Habibalib.Models.Toy
+
+<h2>Add New Toy 🧸</h2>
+
+<div class="form-box">
+    <form method="post" action="/Item/CreateToy">
+        <label>Name</label>
+        <input type="text" name="Name" required />
+        <label>Description</label>
+        <input type="text" name="Description" />
+        <label>Library Code</label>
+        <input type="text" name="LibraryCode" required />
+        <label>Status</label>
+        <select name="Status">
+            <option value="available">available</option>
+            <option value="borrowed">borrowed</option>
+            <option value="damaged">damaged</option>
+            <option value="destroy">destroy</option>
+        </select>
+        <label>Toy Type</label>
+        <input type="text" name="ToyType" />
+        <label>Recommended Age</label>
+        <input type="number" name="Age" />
+        <button type="submit" class="btn-pink">Save Toy</button>
+    </form>
+</div>

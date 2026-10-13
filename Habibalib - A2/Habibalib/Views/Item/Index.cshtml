@@ -1,0 +1,68 @@
+<h2>Manage Items 🛠️</h2>
+
+<a class="btn-pink" href="/Item/CreateBook">+ Add Book</a>
+<a class="btn-pink" href="/Item/CreateMusic">+ Add Music</a>
+<a class="btn-pink" href="/Item/CreateToy">+ Add Toy</a>
+
+<h3>Books</h3>
+<table>
+    <tr><th>Name</th><th>Code</th><th>Status</th><th>Author</th><th></th></tr>
+    @foreach (var b in ViewBag.Books)
+    {
+        <tr>
+            <td>@b.Name</td>
+            <td>@b.LibraryCode</td>
+            <td>@b.Status</td>
+            <td>@b.Author</td>
+            <td>
+                <a href="/Item/EditBook?id=@b.Id" class="btn-pink">Edit</a>
+                <form method="post" action="/Item/DeleteBook" style="display:inline" onsubmit="return confirm('are you sure?')">
+                    <input type="hidden" name="id" value="@b.Id" />
+                    <button type="submit" class="btn-pink">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
+
+<h3>Music</h3>
+<table>
+    <tr><th>Name</th><th>Code</th><th>Status</th><th>Artist</th><th></th></tr>
+    @foreach (var m in ViewBag.Music)
+    {
+        <tr>
+            <td>@m.Name</td>
+            <td>@m.LibraryCode</td>
+            <td>@m.Status</td>
+            <td>@m.Artist</td>
+            <td>
+                <a href="/Item/EditMusic?id=@m.Id" class="btn-pink">Edit</a>
+                <form method="post" action="/Item/DeleteMusic" style="display:inline" onsubmit="return confirm('are you sure?')">
+                    <input type="hidden" name="id" value="@m.Id" />
+                    <button type="submit" class="btn-pink">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
+
+<h3>Toys</h3>
+<table>
+    <tr><th>Name</th><th>Code</th><th>Status</th><th>Type</th><th></th></tr>
+    @foreach (var t in ViewBag.Toys)
+    {
+        <tr>
+            <td>@t.Name</td>
+            <td>@t.LibraryCode</td>
+            <td>@t.Status</td>
+            <td>@t.ToyType</td>
+            <td>
+                <a href="/Item/EditToy?id=@t.Id" class="btn-pink">Edit</a>
+                <form method="post" action="/Item/DeleteToy" style="display:inline" onsubmit="return confirm('are you sure?')">
+                    <input type="hidden" name="id" value="@t.Id" />
+                    <button type="submit" class="btn-pink">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>

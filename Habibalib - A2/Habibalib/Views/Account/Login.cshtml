@@ -1,0 +1,15 @@
+<h2>Staff Login 🔐</h2>
+
+<div class="form-box">
+    @if (ViewBag.Error != null)
+    {
+        <p class="error-text">@ViewBag.Error</p>
+    }
+    <form method="post" action="/Account/Login">
+        <label>Email</label>
+        <input type="email" name="email" required />
+        <label>Password</label>
+        <input type="password" name="password" required />
+        <button type="submit" class="btn-pink">Login</button>
+    </form>
+</div>

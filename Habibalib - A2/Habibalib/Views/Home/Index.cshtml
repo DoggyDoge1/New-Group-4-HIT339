@@ -1,0 +1,43 @@
+<h2>Welcome to Habibalib 🌸</h2>
+<p>Search our books, music and toys below!</p>
+
+<form method="get" action="/">
+    <input type="text" name="search" placeholder="search by name..." value="@ViewBag.SearchText" />
+    <button type="submit" class="btn-pink">Search</button>
+</form>
+
+<h3>📚 Books</h3>
+<div class="item-grid">
+    @foreach (var b in ViewBag.Books)
+    {
+        <div class="card-box">
+            <b>@b.Name</b>
+            <p>@b.Description</p>
+            <a class="btn-pink" href="/Home/Details?type=Book&id=@b.Id">View Details</a>
+        </div>
+    }
+</div>
+
+<h3>🎵 Music</h3>
+<div class="item-grid">
+    @foreach (var m in ViewBag.Music)
+    {
+        <div class="card-box">
+            <b>@m.Name</b>
+            <p>@m.Description</p>
+            <a class="btn-pink" href="/Home/Details?type=Music&id=@m.Id">View Details</a>
+        </div>
+    }
+</div>
+
+<h3>🧸 Toys</h3>
+<div class="item-grid">
+    @foreach (var t in ViewBag.Toys)
+    {
+        <div class="card-box">
+            <b>@t.Name</b>
+            <p>@t.Description</p>
+            <a class="btn-pink" href="/Home/Details?type=Toy&id=@t.Id">View Details</a>
+        </div>
+    }
+</div>

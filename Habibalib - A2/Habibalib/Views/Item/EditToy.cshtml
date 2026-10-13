@@ -1,0 +1,27 @@
+@model Habibalib.Models.Toy
+
+<h2>Edit Toy ✏️</h2>
+
+<div class="form-box">
+    <form method="post" action="/Item/EditToy">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <label>Name</label>
+        <input type="text" name="Name" value="@Model.Name" required />
+        <label>Description</label>
+        <input type="text" name="Description" value="@Model.Description" />
+        <label>Library Code</label>
+        <input type="text" name="LibraryCode" value="@Model.LibraryCode" required />
+        <label>Status</label>
+        <select name="Status">
+            <option value="available" selected="@(Model.Status == "available" ? "selected" : null)">available</option>
+            <option value="borrowed" selected="@(Model.Status == "borrowed" ? "selected" : null)">borrowed</option>
+            <option value="damaged" selected="@(Model.Status == "damaged" ? "selected" : null)">damaged</option>
+            <option value="destroy" selected="@(Model.Status == "destroy" ? "selected" : null)">destroy</option>
+        </select>
+        <label>Toy Type</label>
+        <input type="text" name="ToyType" value="@Model.ToyType" />
+        <label>Recommended Age</label>
+        <input type="number" name="Age" value="@Model.Age" />
+        <button type="submit" class="btn-pink">Update Toy</button>
+    </form>
+</div>

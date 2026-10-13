@@ -1,0 +1,32 @@
+@model Habibalib.Models.Item
+
+<h2>Item Details ✨</h2>
+
+<div class="card-box" style="max-width:500px;">
+    <h3>@Model.Name</h3>
+    <p>@Model.Description</p>
+    <p><b>Library Code:</b> @Model.LibraryCode</p>
+    <p><b>Status:</b> @Model.Status</p>
+
+    @if (Model is Book book)
+    {
+        <p><b>Author:</b> @book.Author</p>
+        <p><b>Genre:</b> @book.Genre</p>
+        <p><b>ISBN:</b> @book.Isbn</p>
+    }
+
+    @if (Model is Music music)
+    {
+        <p><b>Artist:</b> @music.Artist</p>
+        <p><b>Year:</b> @music.Year</p>
+        <p><b>Genre:</b> @music.Genre</p>
+    }
+
+    @if (Model is Toy toy)
+    {
+        <p><b>Toy Type:</b> @toy.ToyType</p>
+        <p><b>Recommended Age:</b> @toy.Age</p>
+    }
+
+    <a href="/" class="btn-pink">Back to search</a>
+</div>

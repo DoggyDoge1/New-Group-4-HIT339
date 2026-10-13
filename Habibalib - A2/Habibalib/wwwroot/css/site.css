@@ -1,0 +1,135 @@
+body {
+    font-family: 'Baloo 2', cursive;
+    background-color: #ffe6f2;
+    margin: 0;
+    color: #4a154b;
+}
+
+.top-bar {
+    background-color: #ff85c0;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 5px dashed #d6336c;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 12px;
+    font-weight: 700;
+    background-color: #d6336c;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+nav a:hover {
+    background-color: #a61e4d;
+}
+
+.page-box {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.footer-box {
+    text-align: center;
+    padding: 15px;
+    background-color: #ff85c0;
+    color: white;
+    font-weight: 700;
+    margin-top: 30px;
+}
+
+.card-box {
+    background-color: white;
+    border: 3px solid #ff85c0;
+    border-radius: 18px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 4px 4px 0px #d6336c;
+}
+
+.btn-pink {
+    background-color: #ff85c0;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 4px 4px 0;
+}
+
+.btn-pink:hover {
+    background-color: #d6336c;
+}
+
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 10px;
+    border-bottom: 2px solid #ffe6f2;
+    text-align: left;
+}
+
+table th {
+    background-color: #ff85c0;
+    color: white;
+}
+
+input, select {
+    padding: 8px;
+    border-radius: 10px;
+    border: 2px solid #ff85c0;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Baloo 2', cursive;
+}
+
+.form-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 18px;
+    border: 3px solid #ff85c0;
+    max-width: 500px;
+}
+
+.error-text {
+    color: #d6336c;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

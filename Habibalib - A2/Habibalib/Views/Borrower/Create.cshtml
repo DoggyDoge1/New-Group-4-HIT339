@@ -1,0 +1,17 @@
+@model Habibalib.Models.Borrower
+
+<h2>Add Borrower 👧</h2>
+
+<div class="form-box">
+    <form method="post" action="/Borrower/Create">
+        <label>Name</label>
+        <input type="text" name="Name" required />
+        <label>Email</label>
+        <input type="email" name="Email" required />
+        <label>Phone</label>
+        <input type="text" name="Phone" />
+        <label>Address</label>
+        <input type="text" name="Address" />
+        <button type="submit" class="btn-pink">Save</button>
+    </form>
+</div>

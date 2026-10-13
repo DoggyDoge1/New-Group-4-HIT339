@@ -1,0 +1,22 @@
+@model List<Habibalib.Models.BorrowTransaction>
+
+<h2>Return an Item 🔁</h2>
+
+<table>
+    <tr><th>Item</th><th>Type</th><th>Borrow Date</th><th>Due Date</th><th></th></tr>
+    @foreach (var t in Model)
+    {
+        <tr>
+            <td>@t.ItemName</td>
+            <td>@t.ItemType</td>
+            <td>@t.BorrowDate.ToShortDateString()</td>
+            <td>@t.DueDate.ToShortDateString()</td>
+            <td>
+                <form method="post" action="/Borrow/ReturnItem" style="display:inline">
+                    <input type="hidden" name="id" value="@t.Id" />
+                    <button type="submit" class="btn-pink">Return</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
