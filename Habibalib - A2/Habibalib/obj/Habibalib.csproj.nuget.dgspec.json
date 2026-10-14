@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\respository\\Habibalib - A2\\Habibalib\\Habibalib.csproj": {}
+    "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\clone2\\New-Group-4-HIT339\\Habibalib - A2\\Habibalib\\Habibalib.csproj": {}
   },
   "projects": {
-    "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\respository\\Habibalib - A2\\Habibalib\\Habibalib.csproj": {
+    "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\clone2\\New-Group-4-HIT339\\Habibalib - A2\\Habibalib\\Habibalib.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\respository\\Habibalib - A2\\Habibalib\\Habibalib.csproj",
+        "projectUniqueName": "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\clone2\\New-Group-4-HIT339\\Habibalib - A2\\Habibalib\\Habibalib.csproj",
         "projectName": "Habibalib",
-        "projectPath": "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\respository\\Habibalib - A2\\Habibalib\\Habibalib.csproj",
+        "projectPath": "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\clone2\\New-Group-4-HIT339\\Habibalib - A2\\Habibalib\\Habibalib.csproj",
         "packagesPath": "C:\\Users\\DogeI\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\respository\\Habibalib - A2\\Habibalib\\obj\\",
+        "outputPath": "C:\\Users\\DogeI\\OneDrive\\Documents\\2026 s2 uni\\DISTRIBUTED DEVELOPMENT\\group project\\clone2\\New-Group-4-HIT339\\Habibalib - A2\\Habibalib\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\DogeI\\AppData\\Roaming\\NuGet\\NuGet.Config"

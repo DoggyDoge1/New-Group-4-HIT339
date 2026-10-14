@@ -5,6 +5,8 @@ using Habibalib.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<Habibalib.Filters.KioskExceptionFilter>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=libdata.db"));
@@ -42,5 +44,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// unknown URLs under /Kiosk get the kiosk-styled 404 page
+app.MapControllerRoute(
+    name: "kioskNotFound",
+    pattern: "Kiosk/{**path}",
+    defaults: new { controller = "Kiosk", action = "Error", code = 404 });
 
 app.Run();

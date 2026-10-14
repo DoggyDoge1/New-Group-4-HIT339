@@ -17,6 +17,13 @@ namespace Habibalib.Data
                 db.SaveChanges();
             }
 
+            // fixed demo patron so the kiosk can be used without a physical card scanner
+            if (!db.Borrowers.Any(b => b.Id == 1001))
+            {
+                db.Borrowers.Add(new Borrower { Id = 1001, Name = "John Smith", Email = "john@example.com", Phone = "0400 000 000", Address = "1 Library Street" });
+                db.SaveChanges();
+            }
+
             if (!db.Books.Any())
             {
                 db.Books.Add(new Book { Name = "Anne of Green Gables", Description = "story of a red hair girl called anne", LibraryCode = "B001", Status = "available", Author = "L.M. Montgomery", Genre = "Fiction", Isbn = "111-111" });

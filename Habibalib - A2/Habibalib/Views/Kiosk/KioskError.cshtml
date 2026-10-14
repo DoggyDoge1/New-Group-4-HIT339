@@ -1,0 +1,33 @@
+@model Habibalib.Controllers.KioskErrorModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kiosk Error</title>
+    <link rel="stylesheet" href="~/css/kiosk.css" />
+</head>
+<body class="k-split-page">
+@await Html.PartialAsync("_KioskHeader")
+<main class="k-main">
+<div class="k-wrap k-big">
+    <div class="k-error-icon" aria-hidden="true">!</div>
+    <h1>@Model.Title</h1>
+    <div class="k-sub">@Model.Message</div>
+    <a class="k-btn" style="text-decoration:none;line-height:96px" href="@Url.Action("Index", "Kiosk")">Back to Start</a>
+    <div class="k-timer">Returning to the welcome screen in <span id="s">20</span>s</div>
+    <div class="k-timer">Error code @Model.Code</div>
+</div>
+</main>
+<script>
+    var n = 20;
+    setInterval(function () {
+        n--; document.getElementById('s').textContent = Math.max(n, 0);
+        if (n <= 0) location.href = '@Url.Action("Index", "Kiosk")';
+    }, 1000);
+</script>
+</body>
+</html>

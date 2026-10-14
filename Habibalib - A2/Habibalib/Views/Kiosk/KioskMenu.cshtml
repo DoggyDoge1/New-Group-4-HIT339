@@ -1,0 +1,156 @@
+@model Habibalib.Controllers.KioskMenuModel
+@{
+    Layout = null;
+    bool borrow = Model.Mode == "borrow";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Library Kiosk</title>
+    <link rel="stylesheet" href="~/css/kiosk.css" />
+</head>
+<body class="k-split-page">
+@await Html.PartialAsync("_KioskHeader")
+
+<main class="k-main">
+<div class="k-split">
+    <section class="k-pane k-left">
+        <div class="k-mode">
+            <a class="@(borrow ? "on" : "")" asp-action="Menu" asp-route-t="@Model.Token" asp-route-mode="borrow">Borrow</a>
+            <a class="@(borrow ? "" : "on")" asp-action="Menu" asp-route-t="@Model.Token" asp-route-mode="return">Return</a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="k-msg @(Model.Success ? "good" : "bad")">@Model.Message</div>
+        }
+        <div class="k-scan" aria-hidden="true">
+            <div class="k-card"><div class="k-bars"></div></div>
+            <div class="k-laser"></div>
+        </div>
+
+        <div class="k-prompt">Ready for Next Item...</div>
+        <div class="k-sub">Please pass the @(borrow ? "book" : "returning item") barcode<br />under the red laser line.</div>
+
+        <form method="post" asp-action="Scan" autocomplete="off">
+            <input type="hidden" name="t" value="@Model.Token" />
+            <input type="hidden" name="mode" value="@Model.Mode" />
+            <button type="button" id="toggle" class="k-btn alt">⌨ Enter Barcode Manually</button>
+            @* invisible but focused so scanner keystrokes always land here *@
+            <input id="code" name="libraryCode" class="k-input k-offscreen" inputmode="none" autocomplete="off" placeholder="Barcode" />
+            <div id="manual" class="k-modal" hidden>
+                <div class="k-modal-box" role="dialog" aria-modal="true">
+                    <div class="k-modal-title">MANUAL BARCODE ENTRY</div>
+                    <div class="k-sub">Please tap the item barcode below:</div>
+                    <div class="k-display"><span id="disp" class="k-disp-text"></span><button type="button" id="clr" aria-label="Clear">✕</button></div>
+                    @await Html.PartialAsync("_KioskNumpad", "code")
+                    <div class="k-modal-actions">
+                        <button type="button" id="cancelManual" class="k-btn danger">✕ CANCEL</button>
+                        <button type="submit" class="k-btn ok">✓ @(borrow ? "CHECK OUT" : "RETURN ITEM")</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="k-pane k-right">
+        <div class="k-patron">PATRON: @Model.PatronName.ToUpper()</div>
+        <div class="k-stats">
+            <span>Active Loans: <strong>@Model.Loans.Count</strong></span>
+            <span>Fines: <strong style="color:@(Model.OutstandingFines > 0 ? "#c53030" : "inherit")">$@Model.OutstandingFines.ToString("0.00")</strong></span>
+        </div>
+        <div class="k-list-title">ITEMS SCANNED THIS SESSION</div>
+        <div class="k-list k-session">
+            @if (Model.SessionItems.Count == 0)
+            {
+                <div class="k-empty">Nothing scanned yet.</div>
+            }
+            @{ int n = 0; }
+            @foreach (var it in Model.SessionItems)
+            {
+                n++;
+                <div class="k-item">
+                    <div>
+                        <div class="k-item-name">@n. @it.Name</div>
+                        <div class="k-item-sub">Due @it.DueDate.ToString("d MMM yyyy")</div>
+                    </div>
+                    <form method="post" asp-action="Remove">
+                        <input type="hidden" name="t" value="@Model.Token" />
+                        <input type="hidden" name="id" value="@it.TransactionId" />
+                        <button type="submit" class="k-remove">Remove</button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <div class="k-list-title k-secondary">ALREADY CHECKED OUT / ON YOUR ACCOUNT</div>
+        <div class="k-list k-history">
+            @if (Model.AccountLoans.Count == 0)
+            {
+                <div class="k-empty">No other items on loan.</div>
+            }
+            @foreach (var l in Model.AccountLoans)
+            {
+                bool overdue = l.DueDate < DateTime.Now;
+                <div class="k-hist-row @(overdue ? "overdue" : "")">
+                    <span>• @l.ItemName</span>
+                    <span>@(overdue ? "OVERDUE · " : "")Due @l.DueDate.ToString("d MMM")</span>
+                </div>
+            }
+        </div>
+        <div class="k-timer">Signing out in <span id="left">@Model.IdleSeconds</span>s</div>
+    </section>
+</div>
+</main>
+
+<footer class="k-footer">
+    <form id="finish" method="post" asp-action="Finish">
+        <input type="hidden" name="t" value="@Model.Token" />
+        <button type="submit" class="k-foot-btn cancel">✕ CANCEL / LOGOUT</button>
+    </form>
+    <form method="post" asp-action="Finish">
+        <input type="hidden" name="t" value="@Model.Token" />
+        <input type="hidden" name="receipt" value="true" />
+        <button type="submit" class="k-foot-btn done">FINISH &amp; PRINT RECEIPT</button>
+    </form>
+</footer>
+
+<script>
+    var i = document.getElementById('code'), m = document.getElementById('manual'), tg = document.getElementById('toggle');
+    function focusCode() { i.focus({ preventScroll: true }); }
+    focusCode();
+    tg.addEventListener('click', function () { m.hidden = false; focusCode(); });
+    var disp = document.getElementById('disp');
+    i.addEventListener('input', function () { disp.textContent = i.value; });
+    document.getElementById('clr').addEventListener('click', function () { i.value = ''; disp.textContent = ''; });
+    document.getElementById('cancelManual').addEventListener('click', function () { i.value = ''; disp.textContent = ''; m.hidden = true; focusCode(); });
+    document.addEventListener('click', function (e) { if (!e.target.closest('button, a, .k-overlay')) focusCode(); });
+
+    // idle countdown; any touch/key resets it. The server enforces the same limit.
+    var total = @Model.IdleSeconds, left = total;
+    function reset() { left = total; }
+    ['touchstart', 'mousedown', 'keydown'].forEach(function (e) { document.addEventListener(e, reset, true); });
+    setInterval(function () {
+        left--;
+        document.getElementById('left').textContent = Math.max(left, 0);
+        if (left <= 0) document.getElementById('finish').submit();
+    }, 1000);
+
+    // beep on a result (browsers may block audio until first touch; the flash still shows)
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <text>
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)(), o = ctx.createOscillator();
+            o.frequency.value = @(Model.Success ? 880 : 220);
+            o.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.25);
+        } catch (e) { }
+        </text>
+    }
+    // never show a cached signed-in page via the back button on a shared device
+    window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
+</script>
+</body>
+</html>

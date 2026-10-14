@@ -1,0 +1,46 @@
+@model Habibalib.Controllers.KioskReceiptModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Receipt</title>
+    <link rel="stylesheet" href="~/css/kiosk.css" />
+</head>
+<body>
+<div class="k-wrap k-big">
+    <div class="k-receipt">
+        <h1>Central Branch</h1>
+        <div>Loan receipt</div>
+        <div>@Model.PatronName · @Model.Printed.ToString("d MMM yyyy h:mm tt")</div>
+        <hr />
+        @if (Model.Items.Count == 0)
+        {
+            <div>No items were checked out this session.</div>
+        }
+        @foreach (var it in Model.Items)
+        {
+            <div class="k-receipt-row"><span>@it.Name</span><span>Due @it.DueDate.ToString("d MMM yyyy")</span></div>
+        }
+        <hr />
+        <div>Thank you for using the library!</div>
+    </div>
+    <div class="k-no-print">
+        <div class="k-sub">Returning to the welcome screen in <span id="s">20</span>s</div>
+        <a class="k-btn" style="text-decoration:none;line-height:96px" asp-action="Index">Done</a>
+    </div>
+</div>
+<script>
+    var n = 20;
+    setInterval(function () {
+        n--; document.getElementById('s').textContent = n;
+        if (n <= 0) location.href = '@Url.Action("Index")';
+    }, 1000);
+    // the session is already closed; don't let Back reopen this page
+    history.replaceState(null, '', '@Url.Action("Index")');
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+@model string
+@* Touch numpad; Model = id of the input to fill *@
+<div class="k-pad" data-target="@Model">
+    @foreach (var k in new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "C" })
+    {
+        <button type="button" data-key="@k" aria-label="@k">@k</button>
+    }
+</div>
+<script>
+    document.querySelectorAll('.k-pad[data-target="@Model"] button').forEach(function (b) {
+        b.addEventListener('click', function () {
+            var i = document.getElementById('@Model'), k = b.dataset.key;
+            if (k === 'C') i.value = '';
+            else if (k === '⌫') i.value = i.value.slice(0, -1);
+            else i.value += k;
+            i.dispatchEvent(new Event('input'));
+        });
+    });
+</script>

@@ -1,0 +1,63 @@
+@{
+    Layout = null;
+    string err = ViewBag.Error as string;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Library Kiosk</title>
+    <link rel="stylesheet" href="~/css/kiosk.css" />
+</head>
+<body class="k-split-page">
+@await Html.PartialAsync("_KioskHeader")
+<main class="k-main">
+<div class="k-wrap k-big">
+    @if (!string.IsNullOrEmpty(err))
+    {
+        <div class="k-msg @(err.StartsWith("Thank") ? "info" : "bad")">@err</div>
+    }
+    <div class="k-brand">LIBRARY SELF-SERVICE</div>
+    <h1>Welcome to Central Branch</h1>
+    <form method="post" asp-controller="Kiosk" asp-action="Start" autocomplete="off">
+        <div class="k-scan" aria-hidden="true">
+            <div class="k-card"><div class="k-bars"></div></div>
+            <div class="k-laser"></div>
+        </div>
+        <div class="k-prompt">Please scan your library card to begin</div>
+        <div class="k-sub">Hold the barcode under the scanner</div>
+
+        <button type="button" id="toggle" class="k-btn alt">⌨ Enter Card Manually</button>
+
+        @* stays focusable but invisible until the numpad is opened, so scanner keystrokes still land here *@
+        <input id="card" name="cardNumber" class="k-input k-offscreen" inputmode="none" autocomplete="off" placeholder="Card number" />
+        <div id="manual" class="k-modal" hidden>
+            <div class="k-modal-box" role="dialog" aria-modal="true">
+                <div class="k-modal-title">MANUAL CARD ENTRY</div>
+                <div class="k-sub">Please tap your library card number below:</div>
+                <div class="k-display"><span id="disp" class="k-disp-text"></span><button type="button" id="clr" aria-label="Clear">✕</button></div>
+                @await Html.PartialAsync("_KioskNumpad", "card")
+                <div class="k-modal-actions">
+                    <button type="button" id="cancelManual" class="k-btn danger">✕ CANCEL</button>
+                    <button type="submit" class="k-btn ok">✓ SUBMIT CARD</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</main>
+<script>
+    var c = document.getElementById('card'), m = document.getElementById('manual'), t = document.getElementById('toggle');
+    function focusCard() { c.focus({ preventScroll: true }); }
+    t.addEventListener('click', function () { m.hidden = false; focusCard(); });
+    var disp = document.getElementById('disp');
+    c.addEventListener('input', function () { disp.textContent = c.value; });
+    document.getElementById('clr').addEventListener('click', function () { c.value = ''; disp.textContent = ''; });
+    document.getElementById('cancelManual').addEventListener('click', function () { c.value = ''; disp.textContent = ''; m.hidden = true; focusCard(); });
+    // scanner = keyboard wedge: keep focus in the field; its trailing Enter submits the form
+    document.addEventListener('click', function (e) { if (e.target.tagName !== 'BUTTON') focusCard(); });
+    focusCard();
+</script>
+</body>
+</html>
