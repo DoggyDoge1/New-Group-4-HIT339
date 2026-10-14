@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 using Habibalib.Models;
 
 namespace Habibalib.Data
@@ -8,6 +10,23 @@ namespace Habibalib.Data
         public static void Run(AppDbContext db)
         {
             db.Database.EnsureCreated();
+            EnsureMultiBranchSchema(db);
+
+            var branches = new[]
+            {
+                new Branch { Id = 1, Name = "Central City Library", Code = "CENTRAL", Address = "100 Main St, City Centre", PhoneNumber = "555-0101" },
+                new Branch { Id = 2, Name = "North Campus Library", Code = "NORTH", Address = "45 University Ave, Northside", PhoneNumber = "555-0102" },
+                new Branch { Id = 3, Name = "West End Community Hub", Code = "WEST", Address = "88 Sunset Blvd, Westend", PhoneNumber = "555-0103" }
+            };
+
+            foreach (var branch in branches)
+            {
+                if (!db.Branches.Any(existing => existing.Id == branch.Id || existing.Code == branch.Code))
+                {
+                    db.Branches.Add(branch);
+                }
+            }
+            db.SaveChanges();
 
             if (!db.Users.Any())
             {
@@ -26,12 +45,19 @@ namespace Habibalib.Data
 
             if (!db.Books.Any())
             {
-                db.Books.Add(new Book { Name = "Anne of Green Gables", Description = "story of a red hair girl called anne", LibraryCode = "B001", Status = "available", Author = "L.M. Montgomery", Genre = "Fiction", Isbn = "111-111" });
-                db.Books.Add(new Book { Name = "Matilda", Description = "a girl with magic powers", LibraryCode = "B002", Status = "available", Author = "Roald Dahl", Genre = "Fantasy", Isbn = "222-222" });
-                db.Books.Add(new Book { Name = "Little Women", Description = "story about 4 sisters growing up", LibraryCode = "B003", Status = "available", Author = "Louisa May Alcott", Genre = "Fiction", Isbn = "333-333" });
-                db.Books.Add(new Book { Name = "Pippi Longstocking", Description = "strong and brave girl story", LibraryCode = "B004", Status = "damaged", Author = "Astrid Lindgren", Genre = "Adventure", Isbn = "444-444" });
+                db.Books.Add(new Book { Name = "Anne of Green Gables", Description = "story of a red hair girl called anne", LibraryCode = "B001", Status = "available", Author = "L.M. Montgomery", Genre = "Fiction", Isbn = "111-111", CurrentBranchId = 1, HomeBranchId = 1 });
+                db.Books.Add(new Book { Name = "Matilda", Description = "a girl with magic powers", LibraryCode = "B002", Status = "available", Author = "Roald Dahl", Genre = "Fantasy", Isbn = "222-222", CurrentBranchId = 1, HomeBranchId = 1 });
+                db.Books.Add(new Book { Name = "Little Women", Description = "story about 4 sisters growing up", LibraryCode = "B003", Status = "available", Author = "Louisa May Alcott", Genre = "Fiction", Isbn = "333-333", CurrentBranchId = 1, HomeBranchId = 1 });
+                db.Books.Add(new Book { Name = "Pippi Longstocking", Description = "strong and brave girl story", LibraryCode = "B004", Status = "damaged", Author = "Astrid Lindgren", Genre = "Adventure", Isbn = "444-444", CurrentBranchId = 1, HomeBranchId = 1 });
                 db.SaveChanges();
             }
+
+            foreach (var book in db.Books.Where(book => book.CurrentBranchId == null || book.HomeBranchId == null))
+            {
+                book.CurrentBranchId ??= 1;
+                book.HomeBranchId ??= book.CurrentBranchId;
+            }
+            db.SaveChanges();
 
             if (!db.Music.Any())
             {
@@ -50,6 +76,90 @@ namespace Habibalib.Data
                 db.Toys.Add(new Toy { Name = "Rainbow Unicorn Plush", Description = "soft toy unicorn", LibraryCode = "T004", Status = "destroy", ToyType = "Plush", Age = 3 });
                 db.SaveChanges();
             }
+        }
+
+        private static void EnsureMultiBranchSchema(AppDbContext db)
+        {
+            var connection = db.Database.GetDbConnection();
+            var wasOpen = connection.State == ConnectionState.Open;
+            if (!wasOpen)
+            {
+                connection.Open();
+            }
+
+            try
+            {
+                var bookColumns = new HashSet<string>();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "PRAGMA table_info('Books');";
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        bookColumns.Add(reader.GetString(1));
+                    }
+                }
+
+                AddColumnIfMissing(connection, bookColumns, "CurrentBranchId", "\"CurrentBranchId\" INTEGER NULL");
+                AddColumnIfMissing(connection, bookColumns, "HomeBranchId", "\"HomeBranchId\" INTEGER NULL");
+                AddColumnIfMissing(connection, bookColumns, "IsInTransit", "\"IsInTransit\" INTEGER NOT NULL DEFAULT 0");
+
+                Execute(connection, """
+                    CREATE TABLE IF NOT EXISTS "Branches" (
+                        "Id" INTEGER NOT NULL CONSTRAINT "PK_Branches" PRIMARY KEY AUTOINCREMENT,
+                        "Name" TEXT NOT NULL,
+                        "Code" TEXT NOT NULL,
+                        "Address" TEXT NOT NULL,
+                        "PhoneNumber" TEXT NULL
+                    );
+                    CREATE UNIQUE INDEX IF NOT EXISTS "IX_Branches_Code" ON "Branches" ("Code");
+
+                    CREATE TABLE IF NOT EXISTS "BranchTransfers" (
+                        "Id" INTEGER NOT NULL CONSTRAINT "PK_BranchTransfers" PRIMARY KEY AUTOINCREMENT,
+                        "BookId" INTEGER NOT NULL,
+                        "FromBranchId" INTEGER NOT NULL,
+                        "ToBranchId" INTEGER NOT NULL,
+                        "RequestedAt" TEXT NOT NULL,
+                        "DispatchedAt" TEXT NULL,
+                        "CompletedAt" TEXT NULL,
+                        "Status" INTEGER NOT NULL,
+                        "Notes" TEXT NULL,
+                        "RequestedByStaffId" TEXT NULL,
+                        CONSTRAINT "FK_BranchTransfers_Books_BookId" FOREIGN KEY ("BookId") REFERENCES "Books" ("Id") ON DELETE RESTRICT,
+                        CONSTRAINT "FK_BranchTransfers_Branches_FromBranchId" FOREIGN KEY ("FromBranchId") REFERENCES "Branches" ("Id") ON DELETE RESTRICT,
+                        CONSTRAINT "FK_BranchTransfers_Branches_ToBranchId" FOREIGN KEY ("ToBranchId") REFERENCES "Branches" ("Id") ON DELETE RESTRICT
+                    );
+                    CREATE INDEX IF NOT EXISTS "IX_BranchTransfers_BookId" ON "BranchTransfers" ("BookId");
+                    CREATE INDEX IF NOT EXISTS "IX_BranchTransfers_FromBranchId" ON "BranchTransfers" ("FromBranchId");
+                    CREATE INDEX IF NOT EXISTS "IX_BranchTransfers_ToBranchId" ON "BranchTransfers" ("ToBranchId");
+                    CREATE INDEX IF NOT EXISTS "IX_Books_CurrentBranchId" ON "Books" ("CurrentBranchId");
+                    CREATE INDEX IF NOT EXISTS "IX_Books_HomeBranchId" ON "Books" ("HomeBranchId");
+                    """);
+            }
+            finally
+            {
+                if (!wasOpen)
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        private static void AddColumnIfMissing(System.Data.Common.DbConnection connection, HashSet<string> columns, string name, string definition)
+        {
+            if (columns.Contains(name))
+            {
+                return;
+            }
+
+            Execute(connection, $"ALTER TABLE \"Books\" ADD COLUMN {definition};");
+        }
+
+        private static void Execute(System.Data.Common.DbConnection connection, string sql)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            command.ExecuteNonQuery();
         }
     }
 }

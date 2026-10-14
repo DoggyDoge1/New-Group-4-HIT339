@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Habibalib")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+93dfd42fed54bd445d1380ea746a9c65acb57487")]
 [assembly: System.Reflection.AssemblyProductAttribute("Habibalib")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Habibalib")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

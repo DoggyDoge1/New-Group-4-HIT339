@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Habibalib.Data;
 using Habibalib.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Habibalib.Controllers
 {
@@ -11,10 +12,12 @@ namespace Habibalib.Controllers
     public class BorrowController : Controller
     {
         private readonly AppDbContext db;
+        private readonly IConfiguration configuration;
 
-        public BorrowController(AppDbContext context)
+        public BorrowController(AppDbContext context, IConfiguration configuration)
         {
             db = context;
+            this.configuration = configuration;
         }
 
         public IActionResult BorrowItem()
@@ -29,7 +32,8 @@ namespace Habibalib.Controllers
             Item found = null;
             string type = "";
 
-            var book = db.Books.FirstOrDefault(b => b.LibraryCode == libraryCode);
+            var book = db.Books.FirstOrDefault(b =>
+                b.LibraryCode == libraryCode && b.CurrentBranchId == GetActiveBranchId());
             if (book != null) { found = book; type = "Book"; }
 
             var music = db.Music.FirstOrDefault(m => m.LibraryCode == libraryCode);
@@ -45,7 +49,7 @@ namespace Habibalib.Controllers
                 return View();
             }
 
-            if (found.Status != "available")
+            if (found.Status != "available" || (book != null && book.IsInTransit))
             {
                 ViewBag.Error = "this item is not available right now";
                 ViewBag.Borrowers = db.Borrowers.ToList();
@@ -99,7 +103,12 @@ namespace Habibalib.Controllers
             if (trans.ItemType == "Book")
             {
                 var book = db.Books.FirstOrDefault(b => b.Id == trans.ItemId);
-                if (book != null) { book.Status = "available"; db.Books.Update(book); }
+                if (book != null)
+                {
+                    book.Status = "available";
+                    book.CurrentBranchId = GetActiveBranchId();
+                    db.Books.Update(book);
+                }
             }
             if (trans.ItemType == "Music")
             {
@@ -116,6 +125,12 @@ namespace Habibalib.Controllers
             db.SaveChanges();
 
             return RedirectToAction("ReturnItem");
+        }
+
+        private int GetActiveBranchId()
+        {
+            return HttpContext.Session.GetInt32("ActiveReceptionBranchId")
+                ?? configuration.GetValue<int>("BranchSettings:LocationBranchId", 1);
         }
     }
 }

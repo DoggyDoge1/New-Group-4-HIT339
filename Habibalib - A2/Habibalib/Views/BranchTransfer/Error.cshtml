@@ -1,0 +1,11 @@
+@model Habibalib.ViewModels.BranchTransferErrorViewModel
+@{
+    ViewData["Title"] = "Branch Transfer Error";
+}
+
+<section class="card-box">
+    <h2>Branch transfer error</h2>
+    <p class="error-text" role="alert">@Model.Message</p>
+    <p>Error code: @Model.StatusCode</p>
+    <a asp-controller="BranchTransfer" asp-action="ReceptionDesk" class="btn-pink">Return to Branch Transfers</a>
+</section>

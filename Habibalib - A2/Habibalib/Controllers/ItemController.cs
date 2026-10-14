@@ -10,10 +10,12 @@ namespace Habibalib.Controllers
     public class ItemController : Controller
     {
         private readonly AppDbContext db;
+        private readonly IConfiguration configuration;
 
-        public ItemController(AppDbContext context)
+        public ItemController(AppDbContext context, IConfiguration configuration)
         {
             db = context;
+            this.configuration = configuration;
         }
 
         public IActionResult Index()
@@ -33,6 +35,14 @@ namespace Habibalib.Controllers
         [HttpPost]
         public IActionResult CreateBook(Book book)
         {
+            var branchId = configuration.GetValue<int>("BranchSettings:LocationBranchId", 1);
+            if (!db.Branches.Any(branch => branch.Id == branchId))
+            {
+                return BadRequest("The configured location branch does not exist.");
+            }
+
+            book.CurrentBranchId = branchId;
+            book.HomeBranchId = branchId;
             db.Books.Add(book);
             db.SaveChanges();
             return RedirectToAction("Index");
@@ -48,7 +58,16 @@ namespace Habibalib.Controllers
         [HttpPost]
         public IActionResult EditBook(Book book)
         {
-            db.Books.Update(book);
+            var existingBook = db.Books.FirstOrDefault(item => item.Id == book.Id);
+            if (existingBook == null) return NotFound();
+
+            existingBook.Name = book.Name;
+            existingBook.Description = book.Description;
+            existingBook.LibraryCode = book.LibraryCode;
+            existingBook.Status = book.Status;
+            existingBook.Author = book.Author;
+            existingBook.Genre = book.Genre;
+            existingBook.Isbn = book.Isbn;
             db.SaveChanges();
             return RedirectToAction("Index");
         }
@@ -59,6 +78,12 @@ namespace Habibalib.Controllers
             var book = db.Books.FirstOrDefault(b => b.Id == id);
             if (book != null)
             {
+                if (db.BranchTransfers.Any(transfer => transfer.BookId == id))
+                {
+                    TempData["ErrorMessage"] = "This book cannot be deleted because it has branch transfer history.";
+                    return RedirectToAction("Index");
+                }
+
                 db.Books.Remove(book);
                 db.SaveChanges();
             }

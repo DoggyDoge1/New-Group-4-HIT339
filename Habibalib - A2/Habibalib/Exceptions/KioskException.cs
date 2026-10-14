@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Habibalib.Controllers;
 
-namespace Habibalib.Filters
+namespace Habibalib.Exceptions
 {
     // Applied to KioskController only: any unhandled exception shows the kiosk-styled
     // error page instead of the site-wide error page or a stack trace.

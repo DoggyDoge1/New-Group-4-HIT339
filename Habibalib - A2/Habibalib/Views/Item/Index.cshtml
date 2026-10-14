@@ -1,5 +1,10 @@
 <h2>Manage Items 🛠️</h2>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <p class="error-text" role="alert">@errorMessage</p>
+}
+
 <a class="btn-pink" href="/Item/CreateBook">+ Add Book</a>
 <a class="btn-pink" href="/Item/CreateMusic">+ Add Music</a>
 <a class="btn-pink" href="/Item/CreateToy">+ Add Toy</a>

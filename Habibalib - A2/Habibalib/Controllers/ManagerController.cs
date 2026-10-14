@@ -21,7 +21,7 @@ namespace Habibalib.Controllers
             ViewBag.TotalMusic = db.Music.Count();
             ViewBag.TotalToys = db.Toys.Count();
 
-            ViewBag.AvailableCount = db.Books.Count(b => b.Status == "available")
+            ViewBag.AvailableCount = db.Books.Count(b => b.Status == "available" && !b.IsInTransit)
                 + db.Music.Count(m => m.Status == "available")
                 + db.Toys.Count(t => t.Status == "available");
 

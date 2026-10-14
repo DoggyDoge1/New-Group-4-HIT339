@@ -1,0 +1,191 @@
+@model Habibalib.ViewModels.BranchReceptionDeskViewModel
+@{
+    ViewData["Title"] = "Branch Reception Desk";
+}
+
+<h2>Branch Reception Desk</h2>
+
+<section class="card-box">
+    <h3>@Model.ActiveBranch.Name (@Model.ActiveBranch.Code)</h3>
+    <p>@Model.ActiveBranch.Address · @Model.ActiveBranch.PhoneNumber</p>
+    <form asp-action="ReceptionDesk" method="get" class="branch-switcher">
+        <label for="branchId">Active reception branch</label>
+        <select id="branchId" name="branchId" onchange="this.form.submit()">
+            @foreach (var branch in Model.Branches)
+            {
+                <option value="@branch.Id" selected="@(branch.Id == Model.ActiveBranch.Id)">@branch.Name</option>
+            }
+        </select>
+    </form>
+</section>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <p class="branch-alert branch-success" role="status">@successMessage</p>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <p class="branch-alert branch-error" role="alert">@errorMessage</p>
+}
+
+<section class="card-box">
+    <h3>Local inventory (@Model.LocalBooks.Count)</h3>
+    @if (Model.LocalBooks.Count == 0)
+    {
+        <p>No books are currently assigned to this branch.</p>
+    }
+    else
+    {
+        <div class="branch-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Library code</th>
+                        <th>Home branch</th>
+                        <th>Status</th>
+                        <th>Request transfer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var book in Model.LocalBooks)
+                    {
+                        <tr>
+                            <td>@book.Name</td>
+                            <td>@book.Author</td>
+                            <td>@book.LibraryCode</td>
+                            <td>@(book.HomeBranch?.Name ?? "Unassigned")</td>
+                            <td>
+                                @if (book.IsInTransit)
+                                {
+                                    <span>Transfer pending</span>
+                                }
+                                else
+                                {
+                                    @book.Status
+                                }
+                            </td>
+                            <td>
+                                @if (!book.IsInTransit && book.Status == "available" && Model.Branches.Count > 1)
+                                {
+                                    <form asp-action="RequestTransfer" method="post" class="transfer-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="bookId" value="@book.Id" />
+                                        <select name="toBranchId" aria-label="Destination for @book.Name" required>
+                                            @foreach (var branch in Model.Branches.Where(branch => branch.Id != Model.ActiveBranch.Id))
+                                            {
+                                                <option value="@branch.Id">@branch.Name</option>
+                                            }
+                                        </select>
+                                        <input type="text" name="notes" maxlength="250" placeholder="Optional note" aria-label="Transfer note for @book.Name" />
+                                        <button type="submit" class="btn-pink">Request</button>
+                                    </form>
+                                }
+                                else if (book.IsInTransit)
+                                {
+                                    <span>Already in a transfer</span>
+                                }
+                                else
+                                {
+                                    <span>Only available books can be transferred</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="card-box">
+    <h3>Incoming transfers (@Model.IncomingTransfers.Count)</h3>
+    @if (Model.IncomingTransfers.Count == 0)
+    {
+        <p>No books are currently in transit to this branch.</p>
+    }
+    else
+    {
+        <div class="branch-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>From</th>
+                        <th>Dispatched</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transfer in Model.IncomingTransfers)
+                    {
+                        <tr>
+                            <td>@transfer.Book.Name</td>
+                            <td>@transfer.FromBranch.Name</td>
+                            <td>@(transfer.DispatchedAt?.ToLocalTime().ToString("g") ?? "—")</td>
+                            <td>@transfer.Notes</td>
+                            <td>
+                                <form asp-action="ReceiveTransfer" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="transferId" value="@transfer.Id" />
+                                    <button type="submit" class="btn-pink">Confirm received</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="card-box">
+    <h3>Outgoing transfers (@Model.OutgoingTransfers.Count)</h3>
+    @if (Model.OutgoingTransfers.Count == 0)
+    {
+        <p>No outgoing transfers are awaiting completion.</p>
+    }
+    else
+    {
+        <div class="branch-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Destination</th>
+                        <th>Requested</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transfer in Model.OutgoingTransfers)
+                    {
+                        <tr>
+                            <td>@transfer.Book.Name</td>
+                            <td>@transfer.ToBranch.Name</td>
+                            <td>@transfer.RequestedAt.ToLocalTime().ToString("g")</td>
+                            <td>@transfer.Status</td>
+                            <td>
+                                @if (transfer.Status == TransferStatus.Requested)
+                                {
+                                    <form asp-action="DispatchTransfer" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="transferId" value="@transfer.Id" />
+                                        <button type="submit" class="btn-pink">Dispatch</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span>Awaiting receipt</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

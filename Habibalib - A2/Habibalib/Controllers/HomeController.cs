@@ -16,7 +16,7 @@ namespace Habibalib.Controllers
 
         public IActionResult Index(string search)
         {
-            var books = db.Books.Where(b => b.Status == "available").ToList();
+            var books = db.Books.Where(b => b.Status == "available" && !b.IsInTransit).ToList();
             var music = db.Music.Where(m => m.Status == "available").ToList();
             var toys = db.Toys.Where(t => t.Status == "available").ToList();
 

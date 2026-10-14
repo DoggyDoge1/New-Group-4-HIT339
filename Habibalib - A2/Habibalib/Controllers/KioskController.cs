@@ -13,7 +13,7 @@ namespace Habibalib.Controllers
     // its random token is carried in the URL / hidden form fields, so nothing
     // persists in the shared browser. Sessions expire after 60 seconds of inactivity.
     [AllowAnonymous]
-    [ServiceFilter(typeof(Habibalib.Filters.KioskExceptionFilter))]
+    [ServiceFilter(typeof(Habibalib.Exceptions.KioskExceptionFilter))]
     [IgnoreAntiforgeryToken] // antiforgery relies on cookies; the unguessable session token is used instead
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public class KioskController : Controller
@@ -23,11 +23,13 @@ namespace Habibalib.Controllers
 
         private readonly AppDbContext db;
         private readonly IMemoryCache cache;
+        private readonly IConfiguration configuration;
 
-        public KioskController(AppDbContext context, IMemoryCache memoryCache)
+        public KioskController(AppDbContext context, IMemoryCache memoryCache, IConfiguration configuration)
         {
             db = context;
             cache = memoryCache;
+            this.configuration = configuration;
         }
 
         private class KioskSession
@@ -195,6 +197,13 @@ namespace Habibalib.Controllers
         {
             var item = FindItem(code, out string type);
             if (item == null) { message = "No item found with that code."; return false; }
+            if (item is Book book
+                && (book.CurrentBranchId != configuration.GetValue<int>("BranchSettings:LocationBranchId", 1)
+                    || book.IsInTransit))
+            {
+                message = "Sorry, \"" + item.Name + "\" is not available at this branch.";
+                return false;
+            }
             if (item.Status != "available") { message = "Sorry, \"" + item.Name + "\" is not available."; return false; }
 
             item.Status = "borrowed";
@@ -236,6 +245,10 @@ namespace Habibalib.Controllers
                 if (trans.Fine > 0) fineNote = " Late fine: $" + trans.Fine + ". Please see the desk.";
             }
             item.Status = "available";
+            if (item is Book returnedBook)
+            {
+                returnedBook.CurrentBranchId = configuration.GetValue<int>("BranchSettings:LocationBranchId", 1);
+            }
             db.SaveChanges();
 
             message = "Returned \"" + item.Name + "\"." + fineNote;

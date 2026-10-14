@@ -127,6 +127,34 @@ input, select {
     font-weight: 700;
 }
 
+.branch-switcher {
+    max-width: 380px;
+}
+
+.branch-table-wrap {
+    overflow-x: auto;
+}
+
+.transfer-form {
+    min-width: 190px;
+}
+
+.branch-alert {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.branch-success {
+    color: #185b34;
+    background: #dff5e6;
+}
+
+.branch-error {
+    color: #8f1d39;
+    background: #ffe0e8;
+}
+
 @media (max-width: 600px) {
     .top-bar {
         flex-direction: column;
