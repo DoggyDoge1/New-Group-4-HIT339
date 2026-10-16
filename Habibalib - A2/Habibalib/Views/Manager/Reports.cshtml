@@ -1,0 +1,38 @@
+@model Habibalib.Models.Integrations.ReportData
+<h2>Manager reports</h2>
+<p>View borrowing activity, audit fines, or inspect current inventory. Dates filter when loans were borrowed. Inventory is a current snapshot and requires blank dates.</p>
+@Html.ValidationSummary(false)
+<form class="form-box" action="/Manager/Reports" method="get">
+    <label for="kind">Report</label>
+    <select id="kind" name="Kind">
+        @foreach (var kind in new[] { "borrowing", "fines", "inventory" })
+        {
+            <option value="@kind" selected="@(Model.Filter.Kind == kind)">@kind</option>
+        }
+    </select>
+    <label for="from">Borrowed from</label>
+    <input id="from" type="date" name="From" value="@(Model.Filter.From?.ToString("yyyy-MM-dd"))" />
+    <label for="to">Borrowed to (inclusive)</label>
+    <input id="to" type="date" name="To" value="@(Model.Filter.To?.ToString("yyyy-MM-dd"))" />
+    <button class="btn-pink" type="submit">View report</button>
+</form>
+@if (ViewData.ModelState.IsValid)
+{
+    <h3>@Model.Title</h3>
+    <p>@Model.Scope</p>
+    <p>Generated UTC: @Model.GeneratedUtc.ToString("yyyy-MM-dd HH:mm")</p>
+    <div class="item-grid">
+        @foreach (var metric in Model.Summary)
+        { <div class="card-box"><strong>@metric.Key</strong><p>@metric.Value</p></div> }
+    </div>
+    var query = "Kind=" + Uri.EscapeDataString(Model.Filter.Kind)
+        + "&From=" + Model.Filter.From?.ToString("yyyy-MM-dd") + "&To=" + Model.Filter.To?.ToString("yyyy-MM-dd");
+    <p><a href="/Manager/Export?@query&format=csv">Download CSV</a> | <a href="/Manager/Export?@query&format=pdf">Download PDF</a></p>
+    <div style="overflow-x:auto">
+    <table><caption>@Model.Title details</caption>
+        <thead><tr>@foreach (var title in Model.Columns) { <th scope="col">@title</th> }</tr></thead>
+        <tbody>@foreach (var row in Model.Rows) { <tr>@foreach (var cell in row) { <td>@cell</td> }</tr> }</tbody>
+    </table>
+    </div>
+    @if (Model.Rows.Count == 0) { <p>No records match this report.</p> }
+}

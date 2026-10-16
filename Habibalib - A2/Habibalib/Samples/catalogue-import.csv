@@ -1,0 +1,4 @@
+Type,LibraryCode,Name,Description,Author,Genre,Isbn,Artist,Year,ToyType,Age,BranchCode
+Book,IMP-B001,Distributed Systems Handbook,A sample imported book,Demo Author,Computing,9780000000001,,,,,NORTH
+Music,IMP-M001,Study Session,Instrumental study music,,Instrumental,,Demo Artist,2025,,,
+Toy,IMP-T001,Building Blocks,A set of colourful blocks,,,,,,Construction,5,

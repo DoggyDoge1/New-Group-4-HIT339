@@ -2,6 +2,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Habibalib.Data;
+using Habibalib.Services;
+using Habibalib.Models.Integrations;
 
 namespace Habibalib.Controllers
 {
@@ -9,10 +11,35 @@ namespace Habibalib.Controllers
     public class ManagerController : Controller
     {
         private readonly AppDbContext db;
+        private readonly ReportService reports;
+        private readonly ReportExportService exports;
 
-        public ManagerController(AppDbContext context)
+        public ManagerController(AppDbContext context, ReportService reports, ReportExportService exports)
         {
             db = context;
+            this.reports = reports;
+            this.exports = exports;
+        }
+
+        [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public IActionResult Reports([FromQuery] ReportFilter filter)
+        {
+            if (!ModelState.IsValid) return View(new ReportData { Filter = filter });
+            return View(reports.Build(filter));
+        }
+
+        [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public IActionResult Export([FromQuery] ReportFilter filter, string format = "csv")
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (format != "csv" && format != "pdf") return BadRequest("Format must be csv or pdf.");
+            var report = reports.Build(filter);
+            var filename = $"habibalib-{filter.Kind}-{report.GeneratedUtc:yyyyMMdd-HHmmss}.{format}";
+            return format == "csv"
+                ? File(exports.Csv(report), "text/csv; charset=utf-8", filename)
+                : File(exports.Pdf(report), "application/pdf", filename);
         }
 
         public IActionResult Index()
