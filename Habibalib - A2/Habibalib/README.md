@@ -16,7 +16,7 @@ This is my Assignment 3 group project. It is a modified version library system o
 ## Requirements
 
 - Git
-- .NET SDK 8.0 or newer. The app targets .NET 8; the project is configured to roll forward to a newer major runtime.
+- .NET 10 SDK. The expanded group project targets .NET 10.
 
 Check your installed SDKs with `dotnet --list-sdks`. Download the SDK from https://dotnet.microsoft.com/download.
 
@@ -44,7 +44,7 @@ Check your installed SDKs with `dotnet --list-sdks`. Download the SDK from https
 4. Open the library site at http://localhost:5080 or the kiosk at http://localhost:5080/Kiosk.
 5. Stop the app with `Ctrl+C`.
 
-You can also open `Habibalib.csproj` in Visual Studio 2022 and run the project there. The first start creates and seeds the SQLite database. To get later team changes, run `git pull` from the repository folder and restart the app.
+You can also open `Habibalib.csproj` in an IDE that supports .NET 10. The first start creates and seeds the SQLite database. To get later team changes, run `git pull` from the repository folder and restart the app.
 
 If you see "address already in use", stop the other app instance or use a different port, for example:
 
@@ -52,14 +52,18 @@ If you see "address already in use", stop the other app instance or use a differ
 dotnet run --urls http://localhost:5090
 ```
 
-The setting below can be used as a workaround with older copies of the project that lack the runtime roll-forward setting. Run both lines in the same PowerShell terminal:
+## Member 3: integrations, importing and reporting
 
-```powershell
-$env:DOTNET_ROLL_FORWARD = "Major"
-dotnet run --urls http://localhost:5080
-```
+The [step-by-step Member 3 guide](docs/member-3-guide.md) explains setup, API key configuration, demonstrations, tests and the code structure.
 
-The environment variable only applies to that terminal window. On macOS/Linux, use `DOTNET_ROLL_FORWARD=Major dotnet run --urls http://localhost:5080`.
+- **Developer API**: `/swagger`; endpoints `/api/v1/items`, `/api/v1/categories`, `/api/v1/status`. Configure `PublicApi__ApiKey` in the environment before starting. Requests require `X-Api-Key`; there is no committed default key. Endpoints are read-only and rate limited.
+- **Catalogue import**: Admin login, then `/Import`. Download the sample and upload UTF-8 CSV. Imports validate the entire file before committing and reject duplicate codes.
+- **Manager reports**: Manager login, then `/Manager/Reports`. Borrowing, fine audit and inventory reports support CSV and PDF downloads. Loan-date filters are inclusive. Inventory is a current snapshot.
+- **Multi-branch seeding**: existing startup seeding creates CENTRAL, NORTH and WEST. Imported books need one of those branch codes; music/toys have no branch assignment in the baseline.
+- **Integration verification**: `python scripts/verify_member3.py` builds the app and exercises the new modules against a temporary database. It does not change the working database.
+- **Planning drafts**: [work breakdown and PM notes](docs/member-3-project-management.md); [portfolio assembly checklist and diagrams](docs/portfolio-assembly-checklist.md). Pending team facts must be completed before submission.
+
+CSV is the selected data-import alternative permitted by the brief; no external provider account is needed. Fine totals use recorded amounts and payment state. Payment dates and historical borrowing branches are not stored by the baseline, so the reports do not claim those dimensions.
 
 ## Staff logins
 

@@ -12,11 +12,13 @@
         <div class="logo">📚 Habibalib 🎀</div>
         <nav>
             <a href="/">Home</a>
+            <a href="/swagger">Developer API</a>
             @if (User.Identity.IsAuthenticated)
             {
                 if (User.IsInRole("Admin"))
                 {
                     <a href="/Item">Manage Items</a>
+                    <a href="/Import">Import catalogue</a>
                 }
                 if (User.IsInRole("Reception"))
                 {
@@ -30,6 +32,7 @@
                 if (User.IsInRole("Manager"))
                 {
                     <a href="/Manager">Stats</a>
+                    <a href="/Manager/Reports">Reports &amp; exports</a>
                     <a href="/Notification">Notifications</a>
                 }
                 <a href="/Account/Logout">Logout (@User.Identity.Name)</a>

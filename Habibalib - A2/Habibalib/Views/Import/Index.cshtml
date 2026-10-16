@@ -1,0 +1,21 @@
+@model Habibalib.Models.Integrations.ImportResult
+<h2>Import catalogue items</h2>
+<p>Add up to 1,000 books, music items or toys from a UTF-8 CSV file (maximum 1 MB).</p>
+<p><a href="/Import/Sample">Download sample CSV</a>. Keep the header and column order. Books need an author and an existing branch code (CENTRAL, NORTH or WEST). Music needs artist and year; toys need type and age. Leave BranchCode blank for music and toys.</p>
+<p>New items start as available. Existing items are never overwritten. If any row is invalid, the entire file is rejected so you can correct it and retry.</p>
+@if (Model.Imported > 0)
+{
+    <div role="status" class="card-box"><strong>@Model.Imported items imported successfully.</strong> <a href="/Item">View catalogue</a></div>
+}
+@if (Model.Errors.Count > 0)
+{
+    <div role="alert" class="card-box"><strong>No items were imported.</strong><ul>
+        @foreach (var error in Model.Errors) { <li>@error</li> }
+    </ul></div>
+}
+<form class="form-box" action="/Import/Index" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <label for="file">Catalogue CSV</label>
+    <input id="file" name="file" type="file" accept=".csv,text/csv" required />
+    <button class="btn-pink" type="submit">Validate and import</button>
+</form>
