@@ -1,8 +1,10 @@
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Habibalib.Data;
 using Habibalib.Models;
+using Habibalib.Services;
 
 namespace Habibalib.Controllers
 {
@@ -61,6 +63,9 @@ namespace Habibalib.Controllers
             var existingBook = db.Books.FirstOrDefault(item => item.Id == book.Id);
             if (existingBook == null) return NotFound();
 
+            // remember the old status so we know if this edit just made the book available again
+            string oldStatus = existingBook.Status;
+
             existingBook.Name = book.Name;
             existingBook.Description = book.Description;
             existingBook.LibraryCode = book.LibraryCode;
@@ -69,6 +74,13 @@ namespace Habibalib.Controllers
             existingBook.Genre = book.Genre;
             existingBook.Isbn = book.Isbn;
             db.SaveChanges();
+
+            // staff just repaired/fixed the book and marked it available, waitlist should know
+            if ((oldStatus == "borrowed" || oldStatus == "damaged") && existingBook.Status == "available")
+            {
+                NotificationHelper.NotifyNextInQueue(db, "Book", existingBook.Id);
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -114,8 +126,17 @@ namespace Habibalib.Controllers
         [HttpPost]
         public IActionResult EditMusic(Music music)
         {
+            var oldMusic = db.Music.AsNoTracking().FirstOrDefault(m => m.Id == music.Id);
+            string oldStatus = oldMusic != null ? oldMusic.Status : null;
+
             db.Music.Update(music);
             db.SaveChanges();
+
+            if ((oldStatus == "borrowed" || oldStatus == "damaged") && music.Status == "available")
+            {
+                NotificationHelper.NotifyNextInQueue(db, "Music", music.Id);
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -155,8 +176,17 @@ namespace Habibalib.Controllers
         [HttpPost]
         public IActionResult EditToy(Toy toy)
         {
+            var oldToy = db.Toys.AsNoTracking().FirstOrDefault(t => t.Id == toy.Id);
+            string oldStatus = oldToy != null ? oldToy.Status : null;
+
             db.Toys.Update(toy);
             db.SaveChanges();
+
+            if ((oldStatus == "borrowed" || oldStatus == "damaged") && toy.Status == "available")
+            {
+                NotificationHelper.NotifyNextInQueue(db, "Toy", toy.Id);
+            }
+
             return RedirectToAction("Index");
         }
 
