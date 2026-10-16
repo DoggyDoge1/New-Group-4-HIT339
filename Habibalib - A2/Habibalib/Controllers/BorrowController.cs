@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Habibalib.Data;
 using Habibalib.Models;
+using Habibalib.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace Habibalib.Controllers
@@ -77,6 +78,10 @@ namespace Habibalib.Controllers
             db.BorrowTransactions.Add(trans);
             db.SaveChanges();
 
+            var patron = db.Borrowers.FirstOrDefault(b => b.Id == borrowerId);
+            NotificationHelper.Send(db, borrowerId, patron != null ? patron.Name : "patron", "Email", "Borrowed",
+                "You checked out \"" + found.Name + "\". Please return it by " + trans.DueDate.ToShortDateString() + ".");
+
             return RedirectToAction("Index", "Borrower");
         }
 
@@ -123,6 +128,16 @@ namespace Habibalib.Controllers
 
             db.BorrowTransactions.Update(trans);
             db.SaveChanges();
+
+            if (trans.Fine > 0)
+            {
+                var finedPatron = db.Borrowers.FirstOrDefault(b => b.Id == trans.BorrowerId);
+                NotificationHelper.Send(db, trans.BorrowerId, finedPatron != null ? finedPatron.Name : "patron", "SMS", "Fine",
+                    "A late fine of $" + trans.Fine + " has been added for \"" + trans.ItemName + "\".");
+            }
+
+            // item just went back to "available", tell whoever is next on the waitlist
+            NotificationHelper.NotifyNextInQueue(db, trans.ItemType, trans.ItemId);
 
             return RedirectToAction("ReturnItem");
         }

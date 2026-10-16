@@ -17,6 +17,8 @@ namespace Habibalib.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<BranchTransfer> BranchTransfers { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

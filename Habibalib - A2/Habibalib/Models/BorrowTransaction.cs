@@ -14,5 +14,9 @@ namespace Habibalib.Models
         public DateTime? ReturnDate { get; set; }
         public decimal Fine { get; set; }
         public bool Paid { get; set; }
+
+        // so the automated reminder only gets sent once per loan, not every sweep
+        public DateTime? DueSoonNotifiedAt { get; set; }
+        public DateTime? OverdueNotifiedAt { get; set; }
     }
 }

@@ -1,0 +1,20 @@
+@model List<Habibalib.Models.Notification>
+
+<h2>Notification Log 📨</h2>
+<p>This is a simulator, no real emails or texts go out, every "send" just gets logged here (and printed to the server console).</p>
+
+<div class="branch-table-wrap">
+    <table>
+        <tr><th>Sent</th><th>Patron</th><th>Channel</th><th>Type</th><th>Message</th></tr>
+        @foreach (var n in Model)
+        {
+            <tr>
+                <td>@n.SentDate.ToString("dd MMM, hh:mm tt")</td>
+                <td>@n.BorrowerName</td>
+                <td>@n.Channel</td>
+                <td>@n.NotifyType</td>
+                <td>@n.Message</td>
+            </tr>
+        }
+    </table>
+</div>

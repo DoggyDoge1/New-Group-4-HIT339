@@ -1,0 +1,30 @@
+@model List<Habibalib.Models.Reservation>
+
+<h2>Holds / Waitlist Queue 📋</h2>
+<p>Patrons join this list from the item details page when a book, song or toy is borrowed or damaged. When reception returns that item, the next person here gets notified automatically.</p>
+
+<div class="branch-table-wrap">
+    <table>
+        <tr><th>Item</th><th>Type</th><th>Patron</th><th>Reserved On</th><th>Status</th><th></th></tr>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.ItemName</td>
+                <td>@r.ItemType</td>
+                <td>@r.BorrowerName</td>
+                <td>@r.ReservedDate.ToShortDateString()</td>
+                <td>@r.Status</td>
+                <td>
+                    <form method="post" action="/Reservation/Fulfil" style="display:inline">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <button type="submit" class="btn-pink">Mark Fulfilled</button>
+                    </form>
+                    <form method="post" action="/Reservation/Cancel" style="display:inline" onsubmit="return confirm('cancel this hold?')">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <button type="submit" class="btn-pink">Cancel</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+</div>

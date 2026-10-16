@@ -1,0 +1,30 @@
+<h2>Place a Hold 🙋‍♀️</h2>
+
+<div class="form-box">
+    <p><b>Item:</b> @ViewBag.ItemName</p>
+    <p><b>Status:</b> @ViewBag.ItemStatus</p>
+
+    @if (ViewBag.Error != null)
+    {
+        <p class="error-text">@ViewBag.Error</p>
+    }
+    @if (ViewBag.Success != null)
+    {
+        <p class="branch-alert branch-success">@ViewBag.Success</p>
+    }
+
+    @if (ViewBag.Success == null)
+    {
+        <form method="post" action="/Reservation/Reserve">
+            <input type="hidden" name="type" value="@ViewBag.ItemType" />
+            <input type="hidden" name="id" value="@ViewBag.ItemId" />
+            <label>Your Name</label>
+            <input type="text" name="name" required />
+            <label>Your Email</label>
+            <input type="email" name="email" required />
+            <button type="submit" class="btn-pink">Join Waitlist</button>
+        </form>
+    }
+
+    <a href="/" class="btn-pink">Back to search</a>
+</div>

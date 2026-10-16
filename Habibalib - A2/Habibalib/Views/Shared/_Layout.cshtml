@@ -24,10 +24,13 @@
                     <a href="/Borrow/BorrowItem">Borrow</a>
                     <a href="/Borrow/ReturnItem">Return</a>
                     <a href="/BranchTransfer/ReceptionDesk">Branch Transfers</a>
+                    <a href="/Reservation">Holds Queue</a>
+                    <a href="/Notification">Notifications</a>
                 }
                 if (User.IsInRole("Manager"))
                 {
                     <a href="/Manager">Stats</a>
+                    <a href="/Notification">Notifications</a>
                 }
                 <a href="/Account/Logout">Logout (@User.Identity.Name)</a>
             }

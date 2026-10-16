@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Habibalib.Data;
 using Habibalib.Models;
+using Habibalib.Services;
 
 namespace Habibalib.Controllers
 {
@@ -221,6 +222,9 @@ namespace Habibalib.Controllers
             db.BorrowTransactions.Add(trans);
             db.SaveChanges();
 
+            NotificationHelper.Send(db, patron.Id, patron.Name, "Email", "Borrowed",
+                "You checked out \"" + item.Name + "\". Please return it by " + trans.DueDate.ToShortDateString() + ".");
+
             s?.Items.Add(new KioskSessionItem { TransactionId = trans.Id, Name = item.Name, Barcode = item.LibraryCode, DueDate = trans.DueDate });
 
             message = "Checked Out! \"" + item.Name + "\" is due back in 14 days.";
@@ -250,6 +254,15 @@ namespace Habibalib.Controllers
                 returnedBook.CurrentBranchId = configuration.GetValue<int>("BranchSettings:LocationBranchId", 1);
             }
             db.SaveChanges();
+
+            if (trans.Fine > 0)
+            {
+                NotificationHelper.Send(db, patron.Id, patron.Name, "SMS", "Fine",
+                    "A late fine of $" + trans.Fine + " has been added for \"" + item.Name + "\".");
+            }
+
+            // item just went back to "available", tell whoever is next on the waitlist
+            NotificationHelper.NotifyNextInQueue(db, type, item.Id);
 
             message = "Returned \"" + item.Name + "\"." + fineNote;
             return true;

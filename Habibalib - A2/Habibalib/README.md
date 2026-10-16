@@ -10,6 +10,8 @@ This is my Assignment 3 group project. It is a modified version library system o
 - Managers can view item statistics, borrowing totals and fine totals.
 - The public can search the catalogue and view item details without signing in.
 - Patrons can use the self-service kiosk to borrow and return items.
+- Patrons can join a waitlist for a borrowed or damaged item from its details page, and reception can manage that queue.
+- The app simulates automated email/SMS notifications for checkouts, items becoming free again, due-soon reminders and fines, logged to a dashboard reception and managers can open.
 
 ## Requirements
 
@@ -124,10 +126,28 @@ The kiosk is a public self-service screen without the normal site navigation, he
 
 Kiosk errors and unknown `/Kiosk/...` URLs display a kiosk-styled error page with a **Back to Start** button and automatic return after 20 seconds.
 
+## Holds / waitlist queue
+
+Any signed-out visitor can place a hold on a borrowed or damaged book, song or toy from its **Item Details** page (the **Place a Hold** button only shows up when the item isn't available).
+
+1. From the home page, open an item that is currently `borrowed` or `damaged` and click **Place a Hold**.
+2. Enter a name and email. If that email has borrowed from the library before, the existing borrower record is reused; otherwise a new one is created.
+3. The page shows the patron's position in line (e.g. "You are #2 in line"), and a confirmation notification is logged.
+4. When reception (or the kiosk) marks that same item as returned, the system automatically looks up the oldest "waiting" hold for it and sends that patron a notification that the item is free. Staff can see the full queue, and mark a hold **Fulfilled** or **Cancel** it, from **Holds Queue** in the Reception navigation.
+
+The waitlist is a notify-only queue: it does not lock the item for that patron once it is marked available, so reception should still check the queue before handing the item to a different walk-in borrower.
+
+## Notifications
+
+Checking out an item, returning a late item (a fine notification), an item becoming free for the next person in a waitlist, and loans that are due soon or overdue all generate a simulated notification. Nothing is actually emailed or texted: each notification is written to the `Notifications` table and also printed to the server console, so it can be checked without any mail/SMS account.
+
+A background check runs automatically every couple of minutes (the whole time the app is running) looking for loans due within 2 days or already overdue, and sends a reminder once per loan so patrons aren't notified repeatedly. Reception and Manager accounts can review every notification sent from the **Notifications** link in the navigation.
+
 ## Database and project notes
 
 - The SQLite database is `libdata.db`. It is created and seeded automatically on first start; stop the app before deleting the file to reset the data.
 - Startup initialization creates/seeds the Central, North and West branches and adds the branch-transfer tables and book-location columns to an existing SQLite database. Existing books without a location are assigned to Central.
+- Startup initialization also adds the `Reservations` and `Notifications` tables, plus two reminder-tracking columns on `BorrowTransactions`, to an existing SQLite database that predates the holds/notifications feature.
 - Books in transit are excluded from checkout and public availability until the receiving branch confirms delivery.
 - Passwords are stored as plain text for this assignment. A real application should store password hashes.
 - `Item` is the base class for `Book`, `Music` and `Toy`.

@@ -10,6 +10,7 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddScoped<Habibalib.Exceptions.KioskExceptionFilter>();
 builder.Services.AddScoped<Habibalib.Exceptions.BranchTransferExceptionFilter>();
+builder.Services.AddHostedService<Habibalib.Services.NotificationBackgroundService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=libdata.db"));

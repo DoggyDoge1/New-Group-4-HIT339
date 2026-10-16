@@ -1,5 +1,9 @@
 @model Habibalib.Models.Item
 
+@{
+    string itemType = Model is Book ? "Book" : (Model is Music ? "Music" : "Toy");
+}
+
 <h2>Item Details ✨</h2>
 
 <div class="card-box" style="max-width:500px;">
@@ -7,6 +11,11 @@
     <p>@Model.Description</p>
     <p><b>Library Code:</b> @Model.LibraryCode</p>
     <p><b>Status:</b> @Model.Status</p>
+
+    @if (Model.Status == "borrowed" || Model.Status == "damaged")
+    {
+        <a href="/Reservation/Reserve?type=@itemType&id=@Model.Id" class="btn-pink">Place a Hold 🙋‍♀️</a>
+    }
 
     @if (Model is Book book)
     {

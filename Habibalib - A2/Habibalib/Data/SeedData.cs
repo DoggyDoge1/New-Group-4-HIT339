@@ -11,6 +11,7 @@ namespace Habibalib.Data
         {
             db.Database.EnsureCreated();
             EnsureMultiBranchSchema(db);
+            EnsureNotificationSchema(db);
 
             var branches = new[]
             {
@@ -134,6 +135,73 @@ namespace Habibalib.Data
                     CREATE INDEX IF NOT EXISTS "IX_BranchTransfers_ToBranchId" ON "BranchTransfers" ("ToBranchId");
                     CREATE INDEX IF NOT EXISTS "IX_Books_CurrentBranchId" ON "Books" ("CurrentBranchId");
                     CREATE INDEX IF NOT EXISTS "IX_Books_HomeBranchId" ON "Books" ("HomeBranchId");
+                    """);
+            }
+            finally
+            {
+                if (!wasOpen)
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        // adds the reservation/notification tables plus the two new columns on
+        // BorrowTransactions, for an existing db file that was made before this feature
+        private static void EnsureNotificationSchema(AppDbContext db)
+        {
+            var connection = db.Database.GetDbConnection();
+            var wasOpen = connection.State == ConnectionState.Open;
+            if (!wasOpen)
+            {
+                connection.Open();
+            }
+
+            try
+            {
+                var transColumns = new HashSet<string>();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "PRAGMA table_info('BorrowTransactions');";
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        transColumns.Add(reader.GetString(1));
+                    }
+                }
+
+                if (!transColumns.Contains("DueSoonNotifiedAt"))
+                {
+                    Execute(connection, "ALTER TABLE \"BorrowTransactions\" ADD COLUMN \"DueSoonNotifiedAt\" TEXT NULL;");
+                }
+                if (!transColumns.Contains("OverdueNotifiedAt"))
+                {
+                    Execute(connection, "ALTER TABLE \"BorrowTransactions\" ADD COLUMN \"OverdueNotifiedAt\" TEXT NULL;");
+                }
+
+                Execute(connection, """
+                    CREATE TABLE IF NOT EXISTS "Reservations" (
+                        "Id" INTEGER NOT NULL CONSTRAINT "PK_Reservations" PRIMARY KEY AUTOINCREMENT,
+                        "ItemType" TEXT NOT NULL,
+                        "ItemId" INTEGER NOT NULL,
+                        "ItemName" TEXT NULL,
+                        "BorrowerId" INTEGER NOT NULL,
+                        "BorrowerName" TEXT NULL,
+                        "ReservedDate" TEXT NOT NULL,
+                        "Status" TEXT NOT NULL,
+                        "NotifiedDate" TEXT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS "IX_Reservations_Item" ON "Reservations" ("ItemType", "ItemId");
+
+                    CREATE TABLE IF NOT EXISTS "Notifications" (
+                        "Id" INTEGER NOT NULL CONSTRAINT "PK_Notifications" PRIMARY KEY AUTOINCREMENT,
+                        "BorrowerId" INTEGER NOT NULL,
+                        "BorrowerName" TEXT NULL,
+                        "Channel" TEXT NOT NULL,
+                        "NotifyType" TEXT NOT NULL,
+                        "Message" TEXT NOT NULL,
+                        "SentDate" TEXT NOT NULL
+                    );
                     """);
             }
             finally
